@@ -21,7 +21,7 @@ nodes = [0, 0]
 def printSudoku(sudoku):
     for i in range(len(sudoku)):
         for j in range(len(sudoku)):
-            print(sudoku[i][j], end="_|_")
+            print(sudoku[i][j], end=" ")
         print()
 
 # Checks if the number is valid for the position in the grid
@@ -67,7 +67,6 @@ def solve(sudoku, row, col, nodes):
     # it will still have its pointer for the number it was on
     # and will therefore keep going through the next numbers available
     for i in range(1, 10, 1):
-        nodes[1] += 1
         if (is_valid(sudoku, row, col, i)):
             sudoku[row][col] = i
             nodes[1] += 1
@@ -144,9 +143,7 @@ def newSolve(grid, helper_grid, row, col, nodes):
                 
                 
 newSolve(sudoku, sudoku_helper, 0, 0, nodes)
-print(nodes[0])
-print(nodes[1])
-
+print(nodes)
 """
 if (solve(sudoku, 0, 0, nodes)):
     printSudoku(sudoku)
@@ -154,4 +151,3 @@ if (solve(sudoku, 0, 0, nodes)):
 else:
     print("No solution?")
 """
-

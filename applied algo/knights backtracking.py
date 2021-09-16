@@ -73,14 +73,12 @@ def solve(board, row, col, nodes, path, num):
     if len(moves) != 0:
         for i in range(len(moves)):
             nodes[1] += 1
-            print(nodes)
             new_row = moves[i][0]
             new_col = moves[i][1]
             if (solve(board, new_row, new_col, nodes, path, num+1)):
                 return True
     board[row][col] = 0
     path.pop()
-    nodes[0] += 1
     return False
 
 # Same concept except here for each point we generate a weighted list
@@ -119,7 +117,8 @@ def heuristic_solve(board, row, col, nodes, path, num):
     nodes[0] += 1
     return False
 
-# new solving method
+# new lving method
+
 for i in range(0, N, 1):
     for j in range(0, N, 1):
         board = create_board(N)
