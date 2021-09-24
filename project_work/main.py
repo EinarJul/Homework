@@ -1,16 +1,24 @@
-# This is a sample Python script.
+import cv2
+import mediapipe as mp
+import time
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+cap = cv2.VideoCapture(0)
+mpHands = mp.solutions.hands
+hands = mpHands.Hands()
+mpDraw = mp.solutions.drawing_utils
 
+while True:
+    success, img = cap.read()
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+    imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    results = hands.process(imgRGB)
+    # print(results.multi_hand_landmarks)
+    if results.multi_hand_landmarks:
+        for handLms in results.multi_hand_landmarks:
+            mpDraw.draw_landmarks(img, handLms)
+    #if results.multi_hand_landmarks:
+    #    for handLms in results.multi_hand_landmarks:
+    #        mpDraw.draw_landmarks(img, imgRGB)
 
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    cv2.imshow("Image", img)
+    cv2.waitKey(1)
