@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hus</title>
+</head>
+<body onload="draw()    ">
+
+<canvas id="myCanvas" width="600" height="600" style="border:1px solid #d3d3d3;">
+</canvas>
+
+<script type="text/javascript">
+    // We get the canvas context so we can perform canvas specific operations
+    function draw(){
+        var canvas = document.getElementById("myCanvas");
+        if(canvas.getContext){
+            var ctx = canvas.getContext("2d");
+        }
+        // Broke down the drawing into sections, so each one can be checked individually
+        drawSun(ctx, canvas);
+        drawMountain(ctx, canvas);
+        drawHouse(ctx, canvas)
+        ctx.font = "15px Sans-Serif";
+        ctx.fillText("Einar Julius Olafarson", 20, canvas.height -10)
+    }
+
+    function drawSun(ctx, canvas){
+        ctx.fillStyle = "#87CEEB";
+        ctx.fillRect(0,0, canvas.width, canvas.height);
+        ctx.fillStyle = ctx.strokeStyle = "#f9d71c";
+        ctx.beginPath();
+        ctx.arc(175, 75, 30, 0, Math.PI * 2);
+        ctx.fill()
+    }
+    function drawMountain(ctx, canvas){
+        ctx.beginPath();
+        ctx.fillStyle = ctx.strokeStyle = "#977c53";
+        ctx.moveTo(0, 150);
+        ctx.lineTo(250, 70);
+        ctx.lineTo(450, 150);
+        ctx.lineTo(600, 80);
+        ctx.lineTo(canvas.width, canvas.height);
+        ctx.lineTo(0, canvas.height)
+        ctx.lineTo(0, 80);
+        ctx.fill();
+    }
+    function drawHouse(ctx, canvas){
+        // Broke the canvas down into different sections by dividing the canvas width and height
+        // And then using those elements to draw out the house somewhat symmetrically
+        house_x = canvas.width/6
+        house_y = canvas.height/3
+        canvas_x_extrude = canvas.width/(3/2)
+        canvas_y_extrude = canvas.height/2
+        house_half_x = (house_x + canvas_x_extrude) / 2
+        house_half_y = (house_y + canvas_y_extrude) / 2
+        ctx.fillStyle = 'green';
+        ctx.fillRect(0, canvas.height/2, canvas.width, canvas.height)
+        ctx.fillStyle = "#990000";
+        ctx.fillRect(house_x, house_y, canvas_x_extrude, canvas_y_extrude)
+        ctx.fillStyle = "white";
+        ctx.beginPath()
+        ctx.moveTo(house_x-20, house_y)
+        ctx.lineTo((house_x + canvas_x_extrude)/2 + 50, house_y-100)
+        ctx.lineTo((house_x + canvas_x_extrude)+20, house_y)
+        ctx.fill();
+        ctx.fillStyle = "#a2b7c1";
+        ctx.fillRect(house_half_x-10, (house_y+canvas_y_extrude), 125, -100)
+        ctx.fillRect(house_half_x-10, house_half_y, -75, 75)
+        ctx.fillRect(house_half_x+125, house_half_y, 75, 75)
+    }
+</script>
+</body>
+</html>

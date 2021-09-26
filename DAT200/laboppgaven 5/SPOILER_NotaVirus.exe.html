@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Paint</title>
+</head>
+<body>
+<label for="canvasWidth">Canvas Width:</label>
+<input type="number" id="canvasWidth" value="1024" required onchange="drawCanvas()">
+<label for="canvasHeight">Canvas Width:</label>
+<input type="number" id="canvasHeight" value="512" required onchange="drawCanvas()">
+<label for="selectShapeType">Object type:</label>
+<select id="selectShapeType"></select>
+<label for="selectShape">Shape drawn:</label>
+<select id="selectShape" onchange="changePriority()"></select>
+<button id="cmbDelete" onclick="deleteOption()">Delete</button>
+<button id="reset" onclick="drawReset()">Reset</button>
+<label for="brushSize">Brush Size</label>
+<select id="brushSize" onchange="changeLineSize()">
+  <option value="Small">Small</option>
+  <option value="Medium">Medium</option>
+  <option value="Large">Large</option>
+</select>
+<label for="brushColour">Brush Colour</label>
+<select id="brushColour" onchange="changeLineColour()" >
+  <option value="#000000">Black</option>
+  <option value="#FF0000">Red</option>
+  <option value="#7CFC00">Green</option>
+  <option value="#87CEFA">Blue</option>
+</select>
+<label for="polygonCount" >Polygon count:</label>
+<input type="number" id="polygonCount" value="6" min="3" max="32">
+<label for="funArtToggle">Fun toggle</label>
+<select id="funArtToggle">
+  <option value="true">True</option>
+  <option value="false">False</option>
+</select>
+
+<hr>
+<canvas id="cvs" style="border:1px solid #000; background-color: #FFC0CB"></canvas>
+<script>
+  //-------------------------------------------------------------------------------------
+  //------ Global Variables -------------------------------------------------------------
+  //-------------------------------------------------------------------------------------
+
+  // DOM model of canvas
+  var cvs = null;
+  // 2D konrext of canvas
+  var ctx = null;
+  // DOM model of selected shape
+  var selectShapeType = null;
+  // DOM model of shapes drawn
+  var selectShape = null;
+  // DOM model of comando button delete
+  var cmbDelete = null;
+  //checks if mouse is being clicked or held down
+  var paint = false;
+  //Changes the eraser tool size
+  var eraserSize = 1;
+  //current object, is accessed by mouse events
+  var currentObject = null;
+  //all drawing objects stored in array for later iteration
+  var allDrawings = [];
+
+
+  //-------------------------------------------------------------------------------------
+  //------ Classes and Objects-----------------------------------------------------------
+  //-------------------------------------------------------------------------------------
+
+  var EShapeType = {
+    Pencil:     {text: "Blyant",    ClosePath: false, Fill: false},
+    Line:       {text: "Linje",     ClosePath: false, Fill: false},
+    Rectangle:  {text: "Rektangle", ClosePath: true,  Fill: true},
+    Circle:     {text: "Sirkel",    ClosePath: true,  Fill: true},
+    Oval:       {text: "Oval",      ClosePath: true,  Fill: true},
+    Polygon:    {text: "Polygon",   ClosePath: true,  Fill: true},
+    Eraser:     {text: "Eraser",    ClosePath: false, Fill:false}
+  };
+
+
+
+  //Creates a new drawing object, a new one is created during each mousedown event
+  function WnewDrawing() {
+    //stores the x and y coordinates of the Brush to later draw over
+    var yLoc = [];
+    var xLoc = [];
+    //Checks whether or not it was just a button press or a click and drag
+    var clickDrag = [];
+    //Makes the tool the selected tool index
+    //Is needed to check how to draw over the coordinates
+    var tool = document.getElementById("selectShapeType").options[document.getElementById("selectShapeType").selectedIndex];
+    var lineColour = changeLineColour();
+    var lineWidth = changeLineSize();
+    //Saves the first click position
+    var startPos = null;
+    var fillColour = randomColour();
+    //Lets you control how many polygons your polygon should be
+    var polygonCount = document.getElementById("polygonCount").value;
+    var artToggle = document.getElementById("funArtToggle").value;
+    /*
+    Sets it so that paint is true so that if we go out of bounds the drawing will stop
+    Add location makes it so that even if they only click they still get a single vertex
+    Drawing sets a vertex down
+    Also adds the object to the shape drawn selection
+    then begins the drawing from first click coordinates
+    */
+    this.startDrawing = function(pos) {
+      paint = true;
+      addLocation(pos.x, pos.y);
+      startPos = pos;
+      var x = document.getElementById("selectShape");
+      var option = document.createElement("Option");
+      option.text = tool.value;
+      x.add(option, x.length);
+      x.selectedIndex = x.length-1;
+      drawing();
+    };
+
+    this.checkMove = function(pos){
+      //Adds new locations to the arrays on move
+      if(paint){
+        addLocation(pos.x,pos.y, true);
+        drawing();
+      }
+    };
+    //Stops allowing new locations to be added to the arrays
+    this.doneDrawing = function(){
+      paint = false;
+
+    };
+    //Adds the mouse location to an array of x and y coordinates, it then also checks if it was added from a click or drag
+    var addLocation = function(x,y,drag){
+      xLoc.push(x);
+      yLoc.push(y);
+      clickDrag.push(drag);
+    };
+
+    //makes it so each call of "drawcanvas" can now strictly redraw over previous coordinates
+    this.redraw = function(){
+      drawing();
+    };
+    //gives tool, useful for adding options outside of the object
+    this.returnTool = function(){
+      return tool.value;
+    };
+
+    var arraySplice = function(){
+      if(artToggle === "true"){
+        if(xLoc.length > 2){
+          xLoc.splice(1,xLoc.length-2);
+          yLoc.splice(1,yLoc.length-2);
+          drawCanvas();
+        }
+      }
+    };
+
+    //is fed the starting and new polygons based on mouse position
+    //is then also given the variable of how many polygons you wanted
+    //Then itterates through the math formula to create the needed points to draw over later
+    var polygonCreator = function(prevPos, newPos, aPoint){
+      var deltaPos = {x: prevPos.x - newPos.x, y: prevPos.y - newPos.y};
+      var radius = Math.sqrt(Math.pow(deltaPos.x, 2) + Math.pow(deltaPos.y, 2));
+      var startAngle = Math.asin(deltaPos.y /radius);
+      var n = aPoint;
+      var centerAngle = 2*Math.PI / n;
+      var points = [];
+      for (var index = 0; index < n; index++){
+        var angle = startAngle + (index *centerAngle);
+        var x = Math.round(prevPos.x + radius * Math.cos(angle));
+        var y = Math.round(prevPos.y - radius * Math.sin(angle));
+        points.push({x: x, y:y});
+      }
+      return points;
+    };
+
+    //Primary aspect to the object, starts by setting linewidth, line colour and the line shape to round
+    var drawing = function(){
+      ctx.clearRect(0, 0, ctx.width, ctx.height);
+      ctx.strokeStyle = lineColour;
+      ctx.lineWidth = lineWidth[0];
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+
+      //From here it goes through which tool you are using basing it on the .value of the tools before
+      if (tool.value === "Pencil"){
+        //This itterates through each point the mouse has been held over before and draws a line from its previous point to its new point
+        //It also has a check for whether or not it was a click or a click drag so you still get a vertex if you only click
+        for (var i =0; i < xLoc.length; i++) {
+          ctx.beginPath();
+          if (clickDrag[i] && i) {
+            ctx.moveTo(xLoc[i - 1], yLoc[i - 1])
+          } else {
+            ctx.moveTo(xLoc[i] - 1, yLoc[i])
+          }
+          ctx.lineTo(xLoc[i], yLoc[i]);
+          ctx.closePath();
+          ctx.stroke();
+        }
+      }
+      else if(tool.value === "Line"){
+        //The line tool is different in that it only requires two coordinates
+        //One at the start and one at the end
+        //This makes it so long term you can save memory on clearing the xLoc and yLoc to only two locations
+        //And then just drawing between the line at the start and end
+        for (var i =0; i < xLoc.length; i++) {
+          ctx.beginPath();
+          arraySplice();
+          ctx.moveTo(xLoc[0], yLoc[0]);
+          ctx.lineTo(xLoc[xLoc.length -1], yLoc[yLoc.length -1]);
+          ctx.closePath();
+          ctx.stroke();
+        }
+      }
+      else if(tool.value === "Rectangle"){
+        //Rectangle is the same process and line, you only require two points, however this time you also need to fill in the rectangle
+        //thankfully Javascript already has fillrect for that purpose
+        arraySplice();
+        ctx.fillStyle = fillColour;
+        ctx.fillRect(xLoc[0], yLoc[0], xLoc[xLoc.length-1] - xLoc[0], yLoc[yLoc.length-1] - yLoc[0]);
+        ctx.strokeRect(xLoc[0], yLoc[0], xLoc[xLoc.length-1] - xLoc[0], yLoc[yLoc.length-1] - yLoc[0]);
+        ctx.closePath();
+      }
+      else if(tool.value === "Circle"){
+        //Circle is a bit trickier, same concept as the other two but this time using .arc
+        //also the abs value is needed as it makes it so no matter where you are on the canvas from the starting point
+        // the circle is drawn, so you do not go into negative value errors
+        ctx.beginPath();
+        ctx.fillStyle = fillColour;
+        arraySplice();
+        ctx.arc(xLoc[0], yLoc[0], Math.abs(xLoc[xLoc.length-1] -xLoc[0]),0,2*Math.PI);
+        ctx.stroke();
+        ctx.arc(xLoc[0], yLoc[0], Math.abs(xLoc[xLoc.length-1] -xLoc[0]),0,2*Math.PI);
+        if (artToggle !== "false"){
+          ctx.fill();
+        }
+      }
+      else if (tool.value === "Oval"){
+        //oval is the same as the circle but with the elpise this time and some different math
+        //abs is used for canvas consistency
+        //attempted to make the angle changable but prooved to be annoying to keep consistent if the person left the canvas
+        //However, this works for a simple oval and the instructions did not mention it needed a changeable angle
+        ctx.beginPath();
+        ctx.fillStyle = fillColour;
+        arraySplice();
+        ctx.ellipse(xLoc[0], yLoc[0], Math.round(Math.abs(xLoc[0] - xLoc[xLoc.length-1])), Math.round(Math.abs(yLoc[0] - yLoc[yLoc.length-1])), 0, 0, 2 * Math.PI, false);
+        ctx.stroke();
+        ctx.fill();
+      }
+      else if (tool.value === "Polygon"){
+        //This one is trickier than all the rest, you still only require two locations, the old and new to make the deltaLoc
+        //However, you now need to itterate through each location given by polygonPoints and then stroke/fill it
+        //We also add the first location to the end of the polygonPoints as it allows for us to close the entire loop easily
+        //Since we then go from endpoint to beginning point
+        ctx.beginPath();
+        ctx.fillStyle = fillColour;
+        var polygonNewLoc = {x: xLoc[xLoc.length-1], y: yLoc[yLoc.length-1]};
+        var polygonPoints = polygonCreator(startPos, polygonNewLoc, polygonCount);
+        arraySplice();
+        polygonPoints[polygonPoints.length] = polygonPoints[0];
+        ctx.moveTo(polygonPoints[0].x, polygonPoints[0].y);
+        for (var i = 0; i < polygonPoints.length; i++){
+            ctx.lineTo(polygonPoints[i].x, polygonPoints[i].y);
+        }
+        ctx.stroke();
+        ctx.fill();
+      }
+      else if(tool.value === "Eraser"){
+        //Eraser just copies the background colour and draws over the top of everything else
+        //Does not work well at the moment with how priority works as it either goes over all other objects
+        //or other objects go directly over it
+        //Otherwise it works exactly like the pencil
+        ctx.strokeStyle = "pink";
+        for (var i =0; i < xLoc.length; i++) {
+          ctx.beginPath();
+          if (clickDrag[i] && i) {
+            ctx.moveTo(xLoc[i - 1], yLoc[i - 1])
+          } else {
+            ctx.moveTo(xLoc[i] - 1, yLoc[i])
+          }
+          ctx.lineTo(xLoc[i], yLoc[i]);
+          ctx.closePath();
+          ctx.stroke();
+        }
+      }
+    }
+
+  }
+
+  //-------------------------------------------------------------------------------------
+  //------ Functions --------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------
+
+  // Updates Canvas on interval timeout
+  function drawCanvas() {
+    //Draws the canvas based on the height and width values of the value numbers
+    //Then itterates through each object in the array and draws them
+    cvs.width = document.getElementById("canvasWidth").value;
+    cvs.height = document.getElementById("canvasHeight").value;
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+    for (var i = 0; i < allDrawings.length; i++){
+      var redrawing = allDrawings[i];
+      redrawing.redraw();
+    }
+  }
+  //Resets the object array and redraws the array;
+  function drawReset(){
+    //Empties out the array for all drawings and then deletes all shape drawn options, then redraws the canvas
+    allDrawings = [];
+    var select = document.getElementById("selectShape");
+    for (var i = select.options.length -1; i >= 0; i--){
+      select.remove(i);
+    }
+    drawCanvas();
+  }
+
+  // Fills all shape types user can draw
+  function fillSelectShapeTypes() {
+    var keys = Object.keys(EShapeType);
+    for (var key in keys) {
+      var shapeType = keys[key]; // This is the shape type!
+      var newOption = new Option(EShapeType[shapeType].text, shapeType, false, false); // New option for shape type
+      selectShapeType.options.add(newOption);// Add the new option to select
+    }
+  }
+
+  // Get exact position for mouse coordinates in canvas
+  function getMousePos(aEvent) {
+    var rect = cvs.getBoundingClientRect();
+    return {
+      x: aEvent.clientX - rect.left,
+      y: aEvent.clientY - rect.top
+    };
+  }
+
+  //-------------------------------------------------------------------------------------
+  //------ Events -----------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------
+
+  // Event for mouse down
+  function mouseDown(aEvent) {
+    var pos = getMousePos(aEvent);
+    if (event.button === 0){
+      currentObject = new WnewDrawing();
+      currentObject.startDrawing(pos);
+      allDrawings.push(currentObject);
+    }
+
+   /* savePos = pos;
+    paint = true;
+    ctx.lineJoin = "round";
+    ctx.beginPath();*/
+
+  }
+
+  // Event for mouse move
+  function mouseMove(aEvent) {
+    var pos = getMousePos(aEvent);
+    //Adds new coordinates to the object and redraws it if current object is not empty
+    //This one is handled specially because it adds a lot of errors to the log otherwise, which can affect performance
+    if (currentObject !== null){
+      currentObject.checkMove(pos);
+    }
+  }
+
+  // Event for mouse up
+  function mouseUp(aEvent) {
+    //Finishes the drawing and adds final coordinates
+    var pos = getMousePos(aEvent);
+    currentObject.doneDrawing();
+  }
+
+  function selectShapeChange(){
+    drawCanvas();
+  }
+
+  function cmbDeleteClick(){
+
+  }
+
+
+  function changeLineSize(){
+    //Changes the thickness of the line, accesses the drop down menu and checks its value against a case variable, then changes global variable
+    //for the draw function
+    var size = document.getElementById("brushSize").value;
+    var arr = [];
+    switch(size){
+      case "Small":
+        size = 1;
+        eraserSize = 16;
+        arr = [size, eraserSize];
+        break;
+      case "Medium":
+        size = 6;
+        eraserSize = 32;
+        arr = [size, eraserSize];
+
+        break;
+      case "Large":
+        size = 15;
+        eraserSize = 64;
+        arr = [size, eraserSize];
+    }
+    return arr;
+  }
+
+  function changeLineColour(){
+    //Changes the line colour based on the drop down menu value
+    return document.getElementById("brushColour").value;
+
+  }
+
+  function outOfBounds(){
+    //Checks if mouse is outside of the canvas element and turns of paint ability
+    // fixes bug where going out of bounds would mess up drawing object
+    paint = false;
+  }
+
+  function randomColour(){
+    //creates a random colour to fill in shapes
+    //All hex codes consist of numbers from 0-9 and ABCDEF
+    //All hex codes are also 6 letters long so you just loop through adding in one from a string
+    //Return the string and you get a purely random colour
+    var colourCode = "0123456789ABCDEF";
+    var colour = "#";
+    for (var i = 0; i<6; i++){
+      colour += colourCode[Math.floor(Math.random()*16)]
+    }
+    return colour;
+  }
+
+  function deleteOption(){
+    //Checks the shape drawn selected index, deletes option at index and then array object at same location
+    //Then redraws the canvas, clearing all deleted objects
+    var select = document.getElementById("selectShape");
+    var selectedObject = select.selectedIndex;
+    select.remove(selectedObject);
+    allDrawings.splice(selectedObject, 1);
+    drawCanvas();
+  }
+
+  function changePriority(){
+    //Alright so i hate this honestly and should work on it a bit more
+    //It first gets the selected index
+    //Then it pushes the object currently selected at the back of the array, making it the last to be drawn, so it gets drawn over everything else
+    // it then deletes the option at the same location and the same for the object at the array location
+    //It then creates a new option at the end of the option list and sets your selected option to it
+    //This needs to be reworked as it does not work with erasers and is only set once there are 2 objects in
+    var select = document.getElementById("selectShape");
+    var index = select.selectedIndex;
+    allDrawings.push(allDrawings[index]);
+    allDrawings.splice(index, 1);
+    select.remove(index);
+    var option = document.createElement("Option");
+    option.text = allDrawings[allDrawings.length-1].returnTool();
+    select.add(option, select.length);
+    select.selectedIndex = select.length-1;
+  }
+
+  //-------------------------------------------------------------------------------------
+
+  //-------------------------------------------------------------------------------------
+  //------ Main code --------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------
+
+  //This function runs after all HTML elements are crated and starts the game
+  window.onload = function () {
+    cvs = document.getElementById("cvs");
+    cvs.width = document.getElementById("canvasWidth").value;
+    cvs.height = document.getElementById("canvasHeight").value;
+    cvs.addEventListener("mousedown", mouseDown, false);
+    cvs.addEventListener("mousemove", mouseMove, false);
+    cvs.addEventListener("mouseup", mouseUp, false);
+    cvs.addEventListener("mouseout", outOfBounds, false);
+    ctx = cvs.getContext('2d');
+
+    selectShapeType = document.getElementById("selectShapeType");
+    selectShape = document.getElementById("selectShape");
+    selectShape.addEventListener("change", selectShapeChange, false);
+
+    cmbDelete = document.getElementById("cmbDelete");
+    cmbDelete.addEventListener("click",cmbDeleteClick, false);
+    fillSelectShapeTypes();
+    drawCanvas();
+  };
+
+  //-------------------------------------------------------------------------------------
+</script>
+</body>
+</html>

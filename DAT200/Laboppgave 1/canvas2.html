@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hus</title>
+</head>
+<body>
+
+<canvas id="myCanvas" width="600" height="600" style="border:1px solid #d3d3d3;">
+</canvas>
+
+<script type="text/javascript">
+    var canvas = document.getElementById("myCanvas");
+    if(canvas.getContext){
+        var ctx = canvas.getContext("2d");
+    }
+    canvas_x_half = canvas.width/2;
+    canvas_y_half = canvas.height/2;
+    rectangle_x = 200;
+    rectangle_y = 200;
+    arc_length = 10;
+    arc_x = canvas_x_half
+    arc_y = canvas_y_half
+    button_depressed = false
+    function draw(){
+        // We use this function to define our initial scene and then through the use of variables
+        // Are able to continually update the scene by reassigning the arc_x and arc_y start positions
+        // and relating the drawlines to our circles endpoints
+        // Could make the lines dynamically follow the arc of the circle but that requires a bit more math
+        // and is outside of the scope of the project
+        // But in essence this clears and then redraws the whole canvas with updated positions
+        ctx.clearRect(0, 0, canvas.height, canvas.width);
+        ctx.fillStyle = "rgb(238, 238, 155)";
+        ctx.fillRect(0,0,canvas.width, canvas.height);
+        ctx.fillStyle = "#800000";
+        ctx.fillRect(canvas_x_half - rectangle_x/2, canvas_y_half - rectangle_y/2, rectangle_x, rectangle_y);
+        ctx.beginPath();
+        ctx.moveTo(canvas_x_half - rectangle_x/2, canvas_y_half);
+        ctx.lineTo(arc_x-arc_length, arc_y);
+        ctx.stroke();
+        ctx.closePath();
+        ctx.beginPath();
+        ctx.moveTo(canvas_x_half + rectangle_x/2, canvas_y_half);
+        ctx.lineTo(arc_x+arc_length, arc_y);
+        ctx.stroke();
+        ctx.closePath();
+        ctx.beginPath();
+        ctx.arc(arc_x, arc_y, arc_length, 0, Math.PI * 2);
+        ctx.stroke()
+    }
+    draw()
+
+
+    /* Here we use mousedown and mouseup to update a variable to keep track of if our mouse is being clicked or not
+    * considering that we dont want our circle to attach to the mouse upon hovering over it we use buttons
+    * because buttons keeps track of the mouse up and down outside of the canvas itself and browser
+    * so long as a button pressed happened inside of the html document
+    * */
+    document.addEventListener("mousedown", function(e){
+        button_depressed = e.buttons
+    },false)
+
+    document.addEventListener("mouseup", function(e){
+        button_depressed = e.buttons
+    },false)
+
+    canvas.addEventListener("mousedown", function (e) {
+        var currx = e.clientX - canvas.offsetLeft; //Man bruker offset for å få riktig posisjon i forhold til grafikken man har tegnet på Canvaset
+        var curry = e.clientY - canvas.offsetTop;  //Man bruker offset for å få riktig posisjon i forhold til grafikken man har tegnet på Canvaset
+        var inside_circle = Math.sqrt((currx - arc_x)**2 + (curry-arc_y)**2)
+        if (inside_circle <= arc_length){
+        //if (currx >= arc_x - arc_length && currx <= arc_x + arc_length && curry >= arc_y - arc_length && curry <= arc_y + arc_length){
+            //document.getElementById("myCanvas").style.cursor = "pointer";
+
+            // If the user clicks anywhere inside of the circle we update it to center on the mouse cursor
+            arc_x = e.clientX - arc_length/2
+            arc_y = e.clientY - arc_length/2
+            draw()
+        }
+    }, false);
+
+    canvas.addEventListener("mousemove", function (e) {
+
+        var currx = e.clientX - canvas.offsetLeft; //Man bruker offset for å få riktig posisjon i forhold til grafikken man har tegnet på Canvaset
+        var curry = e.clientY - canvas.offsetTop;  //Man bruker offset for å få riktig posisjon i forhold til grafikken man har tegnet på Canvaset
+        var inside_circle = Math.sqrt((currx - arc_x)**2 + (curry-arc_y)**2)
+        // Here we check if we are inside the boundary of our drawn circle with a lot of and statements
+        // Basically we check if the arc_x position +- its length is inside of our cursor location
+        // Otherwise we just let the different mouse operations handle our cursor condition
+        //console.log(inside_circle <= arc_length)
+        console.log(inside_circle)
+        //if (currx >= arc_x - arc_length && currx <= arc_x + arc_length && curry >= arc_y - arc_length && curry <= arc_y + arc_length){
+        if (inside_circle <= arc_length){
+            // We update the cursor if inside of the circle
+            document.getElementById("myCanvas").style.cursor = "pointer";
+            if (button_depressed){
+                // As detailed before in line 52 we make sure our left mouse button is being held down
+                // Before we update our arc's starting x and y coordinates
+                // We then redraw the scene with updated coordinates
+                arc_x = e.clientX - arc_length
+                arc_y = e.clientY - arc_length
+                draw()
+            }
+        }else {
+            // Otherwise it stays neutral
+            document.getElementById("myCanvas").style.cursor = "auto";
+        }
+    }, false);
+
+    canvas.addEventListener("mouseup", function () {
+        // Just to make sure our cursor is set to neutral right away our mouseup updates our cursor
+        // We then reset our arc's x and y coordinates and redraw the scene, returning it to normal
+        // Allowing it to look like our circle is being snapshot back into the box
+        document.getElementById("myCanvas").style.cursor = "auto";
+        arc_x = canvas_x_half;
+        arc_y = canvas_y_half;
+        draw();
+    }, false);
+
+
+</script>
+</body>
+</html>

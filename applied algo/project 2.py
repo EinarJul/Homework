@@ -105,7 +105,6 @@ start_time = time.time()
 
 class Nodes:
     newid = itertools.count()
-
     def __init__(self, state):
         self.id = next(Nodes.newid)
         # The node class will contain whether or not it is an accepting state or not
@@ -156,24 +155,25 @@ def findString(root: Nodes, word):
                 node = child[1]
                 break
         if char_not_found:
+            print("Either string is not in language")
+            print("Or it is too long for the language")
             return False
-
     print(str)
     return True
 
 
 all_positive = [x[0] for x in curr_strings if 1 in x]
-print(all_positive)
+# print(all_positive)
 first_node = Nodes(0)
 for each in curr_strings:
     buildTrie(first_node, each[0], each[1])
 print("program took", time.time() - start_time, "to run")
 
-for i in all_positive:
-    print(findString(first_node, i))
+# for i in all_positive:
+#     print(findString(first_node, i))
 
 
-# first_node.traverseTree()
+first_node.traverseTree()
 
 
 def TrakhtenbrotandBarzdin(root: Nodes):
@@ -181,12 +181,21 @@ def TrakhtenbrotandBarzdin(root: Nodes):
     breadth_first = []
     breadth_first.extend(unique_nodes[0].connected)
 
-    for unique in unique_nodes:
-        for candidate in breadth_first:
+    for candidate in breadth_first:
+        is_candidate_child_null = False
+        for unique in unique_nodes:
+            if unique.state != candidate.state:
+            if len(candidate.connected) != len(unique.connected):
+                if not bool(candidate.connected):
+                    print("merge leaf node to last unique node")
+                continue
+
             if not bool(candidate.connected):
-                if unique.state == candidate.state:
-                    #no clue what to do here
-                    unique_nodes[-1]
+                print("why")
+
+                # if unique.state == candidate.state:
+                #     #no clue what to do here
+                #     unique_nodes[-1]
 
         curr_node = each
         curr_node_states = []
@@ -205,8 +214,9 @@ def TrakhtenbrotandBarzdin(root: Nodes):
 
 # Old code here
 
-# print(generateallStrings(incidence_matrix, incidence_matrix[0], ""))
-# print(len(generateallStrings(incidence_matrix, incidence_matrix[0], "")["accepted"]) + len(generateallStrings(incidence_matrix, incidence_matrix[0], "")["rejected"]))
+# print(generateallStrings(incidence_matrix, incidence_matrix[0], "")) print(len(generateallStrings(incidence_matrix,
+# incidence_matrix[0], "")["accepted"]) + len(generateallStrings(incidence_matrix, incidence_matrix[0],
+# "")["rejected"]))
 
 # Old tree solution, far less efficient and cannot handle values above approx 12
 # def buildTree(states, longestl):
