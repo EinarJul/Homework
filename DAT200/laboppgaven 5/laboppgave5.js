@@ -1,3 +1,5 @@
+// Angle between two points is just using the middle or something as a basis rotator
+// Use basic trig for the angle and then plug that for the rotational value
 
 var canvas = document.getElementById("myCanvas");
 if(canvas.getContext){
