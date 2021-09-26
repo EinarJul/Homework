@@ -3,107 +3,126 @@ var canvas = document.getElementById("myCanvas");
 if(canvas.getContext){
     var ctx = canvas.getContext("2d");
 }
-
-var point_length = 10;
+// Oppgave 1
+ctx.fillStyle = "#EEEE9B";
+var point_length = 20;
 var polygon_points = []
 var current = -1
 var active = false;
-global_x = 0
-global_y = 0
+GlobalPoint = new Point(0, 0)
+point_amount = 3
+curr_option = 0
+ctx.fillRect(0,0, canvas.width, canvas.height)
 
-// Oppgave 1
-ctx.fillStyle = "#EEEE9B";
 function Point(x, y) {
     this.x = x;
     this.y = y;
 }
 
+
 function find(x, y) {
-    for (var i = 0; i < polygon_points; i++)
-        if (polygon_points[i].x - point_length / 2 <= x
-            && x <= polygon_points[i].x + point_length / 2
-            && polygon_points[i].y - point_length / 2 <= y
-            && y <= polygon_points[i].y + point_length / 2)
-            return i;
-    return -1; //Fant ikke noe rektangel i nærheten av muspeker
-}
-
-
-function draw(option){
-
-    switch (option){
-        case 0:
-            console.log("haha")
-            break
-        case 1:
-            break
-        case 2:
-            break
-        case 3:
-            break
-        default:
-            console.log("Select an option")
-
+    if (polygon_points.length > 0){
+        for (var i = 0; i < polygon_points.length; i++)
+            if (polygon_points[i].x - point_length / 2 <= x
+                && x <= polygon_points[i].x + point_length / 2
+                && polygon_points[i].y - point_length / 2 <= y
+                && y <= polygon_points[i].y + point_length / 2){
+                return i;
+            }
+        return -1;
+    } else {
+        return -1
     }
 
 }
 
+function matrixMultiplier(base_matrix, transform){
+
+    return base_matrix
+}
+
+// Basic drawing function for each point of our polygon
 function drawPoints(points){
     ctx.beginPath()
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     ctx.fillRect(0,0, canvas.width, canvas.height)
-    console.log(points)
-    ctx.moveTo(points[0][0], points[0][1])
+    ctx.moveTo(points[0].x, points[0].y)
     for (var i = 0; i < points.length; i++){
-        ctx.lineTo(points[i][0], points[i][1]);
+        ctx.lineTo(points[i].x, points[i].y);
     }
-    ctx.stroke()
     ctx.closePath()
+    ctx.stroke()
 }
 
-
-function generatePoints(x, y, numbpoints, initial_click) {
-
-    var delta_pos = {x:  initial_click[0]-x, y: initial_click[1]-y}
-    console.log(delta_pos)
+// Here we generate our points for the n sided polygon
+// Currently has some weird flipping issues around the y axis
+function generatePoints(x, y, numbpoints) {
+    var delta_pos = {x: GlobalPoint.x - x, y: GlobalPoint.y - y}
     radius = Math.sqrt(Math.pow(delta_pos.x, 2) + Math.pow(delta_pos.y, 2))
     var startangle = Math.asin(delta_pos.y / radius)
     var centerAngle = 2*Math.PI / numbpoints
-    poly_points = []
+    polygon_points = []
     // for radius just implement a simple pythagoras for the click distance of when this function was called
     // and for whenever the mouse moves
-
     for (let i = 0; i < numbpoints; i++){
         var angle = startangle + (i * centerAngle);
-        var xPoint = Math.round(global_x + radius * Math.sin(angle))
-        var yPoint = Math.round(global_y + radius * Math.cos(angle))
-        var pointX = ( Math.sin( i / numbpoints * 2 * Math.PI )  * radius + delta_pos.x);
-        var pointY = ( Math.cos( i / numbpoints * 2 * Math.PI ) * radius + delta_pos.y);
-        poly_points.push([xPoint, yPoint])
+        var xPoint = Math.round(GlobalPoint.x + radius * Math.sin(angle))
+        var yPoint = Math.round(GlobalPoint.y + radius * Math.cos(angle))
+        new_point = new Point(xPoint, yPoint)
+        polygon_points.push(new_point)
     }
-
-    console.log(poly_points)
-
-    drawPoints(poly_points)
+    drawPoints(polygon_points)
 }
 
-canvas.addEventListener("mousedown", function (e) {
-    var x = e.clientX - canvas.offsetLeft; // Alternative: var currx = e.layerX; (ikke støttet i alle browsere)
-    var y = e.clientY - canvas.offsetTop;  // Alternative: var curry = e.layerY; (ikke støttet i alle browsere)
-    //current = find(x, y);
-    if (current < 0) {
-        global_x = x
-        global_y = y
-        generatePoints(x, y, 5, [x, y])
+// While mousebutton is down and not on a point we can update our points as we want
+document.addEventListener("wheel", function (e){
+    if (curr_option === 0) {
+        if (e.deltaY < 0){
+            if (point_amount > 3){
+                point_amount -= 1
+                if (active){
+                    generatePoints(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop, point_amount, GlobalPoint)
+                }
+            }
+        }
+        else if (e.deltaY > 0 ){
+            if (point_amount < 50){
+                point_amount += 1
+                if (active){
+                    generatePoints(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop, point_amount, GlobalPoint)
+                }
+            }
+        }
     }
-    else
-        active = true;
+},false)
+
+canvas.addEventListener("mousedown", function (e) {
+    var x = e.clientX - canvas.offsetLeft;
+    var y = e.clientY - canvas.offsetTop;
+    current = find(x, y);
+    active = true
+    GlobalPoint.x = x
+    GlobalPoint.y = y
+    switch (curr_option){
+        case 0:
+            console.log(curr_option)
+            generatePoints(x, y, point_amount)
+            break
+        case 1:
+            GlobalPoint.x = x
+            GlobalPoint.y = y
+            break
+        case 2:
+            GlobalPoint.x = x
+            GlobalPoint.y = y
+            break
+        case 3:
+            GlobalPoint.x = x
+            GlobalPoint.y = y
+            break
+
+    }
 }, false);
-
-
-
-
-
 
 canvas.addEventListener("mouseup", function (e) {
     active = false;
@@ -113,12 +132,82 @@ canvas.addEventListener("mouseup", function (e) {
 canvas.addEventListener("mousemove", function (e) {
     var x = e.clientX - canvas.offsetLeft;
     var y = e.clientY - canvas.offsetTop;
-    console.log(x)
-    console.log(global_x)
-    console.log("Above is x, global x")
-    generatePoints(x, y, 5, [global_x, global_y])
-
     if (active) {
+        switch (curr_option){
+            case 0:
+                generatePoints(x, y, point_amount)
+                break
+            case 1:
+                if (current > -1){
+                    // Though not technically matrix addition this is the equivelent to
+                    // poly_current = [x,y] + [[1, 0, change_in_x],[0,1,change_in_y]]
+                    polygon_points[current].y += y - GlobalPoint.y
+                    polygon_points[current].x += x - GlobalPoint.x
+                    GlobalPoint.x = x
+                    GlobalPoint.y = y
+                }
+                break
+            case 2:
+                for (i = 0; i < polygon_points.length; i++){
+                    multiplier = Math.sqrt(Math.pow(GlobalPoint.x - x, 2) + Math.pow(GlobalPoint.y - y, 2))
+                    console.log(multiplier)
+                    polygon_points[i] *= multiplier
+                }
+        }    }
+    else {
+        if (find(x, y) >= 0){
+            document.getElementById("myCanvas").style.cursor = "pointer";
+        }
+        else{
+            document.getElementById("myCanvas").style.cursor = "auto";
+        }
+    }
+    if (polygon_points.length > 0)
+        drawPoints(polygon_points)
+}, false);
+
+
+
+// His code
+
+/*
+var canvas = document.getElementById("myCanvas");
+w = canvas.width;
+h = canvas.height;
+var ctx = canvas.getContext("2d");
+
+var squares = [];
+var nsquares = 0;
+var SQUARELENGTH = 10;
+
+var aktiv = false;
+var current = -1;  //Number pointing to current rectangel in the table
+
+function Point(x, y) {
+    this.x = x;
+    this.y = y;
+}
+
+canvas.addEventListener("mousedown", function (e) {
+    var x = e.clientX - canvas.offsetLeft; // Alternative: var currx = e.layerX; (ikke støttet i alle browsere)
+    var y = e.clientY - canvas.offsetTop;  // Alternative: var curry = e.layerY; (ikke støttet i alle browsere)
+    current = find(x, y);
+    if (current < 0) //not inside a square
+        add(x, y);
+    else
+        aktiv = true;
+}, false);
+
+canvas.addEventListener("mouseup", function (e) {
+    aktiv = false;
+}, false);
+
+
+canvas.addEventListener("mousemove", function (e) {
+    var x = e.clientX - canvas.offsetLeft;
+    var y = e.clientY - canvas.offsetTop;
+
+    if (aktiv) {
         squares[current].x = x;
         squares[current].y = y;
         draw();
@@ -141,7 +230,15 @@ canvas.addEventListener("dblclick", function (e) {
     console.log("dblclick occured");
 }, false);
 
-
+function find(x, y) {
+    for (var i = 0; i < nsquares; i++)
+        if (squares[i].x - SQUARELENGTH / 2 <= x
+            && x <= squares[i].x + SQUARELENGTH / 2
+            && squares[i].y - SQUARELENGTH / 2 <= y
+            && y <= squares[i].y + SQUARELENGTH / 2)
+            return i;
+    return -1; //Fant ikke noe rektangel i nærheten av muspeker
+}
 
 
 function add(x, y) {
@@ -155,16 +252,26 @@ function remove(n) {
     if (n < 0 || n >= nsquares)
         return;
 
-    /* squares[n] = squares[nsquares];
+     squares[n] = squares[nsquares];
      if (current == n)
-         current = -1;*/
+         current = -1;
 
-    //Metodeblokken over er et alternativ til å bruke splice
 
     squares.splice(n,1);
     nsquares--;
     draw();
 }
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = "black";
+
+    for (var i = 0; i < nsquares; i++) {
+        ctx.strokeRect(squares[i].x - SQUARELENGTH / 2, squares[i].y - SQUARELENGTH
+            / 2, SQUARELENGTH, SQUARELENGTH);
+    }
+}
+*/
 
 
 

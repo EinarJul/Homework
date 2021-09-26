@@ -159,7 +159,7 @@
     //Then itterates through the math formula to create the needed points to draw over later
     var polygonCreator = function(prevPos, newPos, aPoint){
       var deltaPos = {x: prevPos.x - newPos.x, y: prevPos.y - newPos.y};
-      var radius = Math.sqrt(Math.pow(deltaPos.x, 2) + Math.pow(deltaPos.y, 2));
+      const radius = Math.sqrt(Math.pow(deltaPos.x, 2) + Math.pow(deltaPos.y, 2));
       var startAngle = Math.asin(deltaPos.y /radius);
       var n = aPoint;
       var centerAngle = 2*Math.PI / n;
