@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script defer type="text/javascript" src="laboppgave5.js"></script>
+
+</head>
+<body>
+<div>
+    <button id="drawnew" onclick="curr_option=0">Draw New</button>
+    <button id="transform point" onclick="curr_option=1">transform point</button>
+    <button id="scale polygon" onclick="curr_option=2">scale polygon</button>
+    <label for="kx"></label><input type="number" min="0.01" max="3" id="kx" value="1" onchange="updateMultiamound()">
+    <label for="ky"></label><input type="number" min="0.01" max="3" id="ky" value="1" onchange="updateMultiamound()">
+    <button id="rotate polygon" onclick="curr_option=3">rotate polygon</button>
+</div>
+<div>
+    <canvas id="myCanvas" width="800" height="800" style="border:1px solid #d3d3d3;"></canvas>
+</div>
+
+</body>
+</html>

@@ -1,6 +1,3 @@
-// Angle between two points is just using the middle or something as a basis rotator
-// Use basic trig for the angle and then plug that for the rotational value
-
 var canvas = document.getElementById("myCanvas");
 if(canvas.getContext){
     var ctx = canvas.getContext("2d");
@@ -14,6 +11,8 @@ var active = false;
 GlobalPoint = new Point(0, 0)
 point_amount = 3
 curr_option = 0
+var mult_amount_x = document.getElementById("kx").value
+var mult_amount_y = document.getElementById("ky").value
 ctx.fillRect(0,0, canvas.width, canvas.height)
 
 function Point(x, y) {
@@ -21,6 +20,10 @@ function Point(x, y) {
     this.y = y;
 }
 
+function updateMultiamound(){
+    mult_amount_x = document.getElementById("kx").value
+    mult_amount_y = document.getElementById("ky").value
+}
 
 function find(x, y) {
     if (polygon_points.length > 0){
@@ -35,16 +38,50 @@ function find(x, y) {
     } else {
         return -1
     }
-
 }
 
-function matrixMultiplier(base_matrix, transform){
+function averagePoint(points){
+    var sum_x = 0
+    var sum_y = 0
 
-    return base_matrix
+    for (var i = 0; i < points.length; i++){
+        sum_x += points[i].x
+        sum_y += points[i].y
+    }
+    av_point = new Point((sum_x/points.length), (sum_y/points.length))
+    return av_point
+}
+
+function scaleMatrix(points, mult_x, mult_y, x, y) {
+    console.log(points)
+    base = averagePoint(points)
+    var s_x = 1+5*(x - GlobalPoint.x)/canvas.width
+    var s_y = 1+5*(y - GlobalPoint.y)/canvas.height
+    for (let i = 0; i < points.length; i++){
+        points[i].x = points[i].x*mult_x + base.x*(1-mult_x)
+        points[i].y = points[i].y*mult_y + base.y*(1-mult_y)
+    }
+}
+
+function rotateMatrix(points, point_distance, x, y){
+    var av_point = averagePoint(points)
+    angle = Math.atan2(GlobalPoint.y - av_point.y, GlobalPoint.x - av_point.x) - Math.atan2(y - av_point.y, x - av_point.x)
+    // p1_distance = new Point(GlobalPoint.x - av_point.x, GlobalPoint.y - av_point.y)
+    // p2_distance = new Point(x - av_point.x, y - av_point.y)
+    // magnitude_p1 = Math.sqrt(p1_distance.x**2 + p1_distance.y**2)
+    // magnitude_p2 = Math.sqrt(p2_distance.x**2, p2_distance.y**2)
+    // angle = ((p1_distance.x*p1_distance.y) + (p2_distance.x*p2_distance.y))/(magnitude_p1*magnitude_p2)
+    new_points = []
+    for (i = 0; i < points.length; i++) {
+        new_x = av_point.x + (points[i].x - av_point.x)*Math.cos(angle) - (points[i].y - av_point.y) * Math.sin(angle);
+        new_y = av_point.y + (points[i].x - av_point.x)*Math.sin(angle) + (points[i].y - av_point.y) * Math.cos(angle);
+        new_points.push(new Point(new_x, new_y))
+    }
+    polygon_points = new_points
 }
 
 // Basic drawing function for each point of our polygon
-function drawPoints(points){
+function drawPoints(points, optional={x: 0, y: 0}){
     ctx.beginPath()
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     ctx.fillRect(0,0, canvas.width, canvas.height)
@@ -53,6 +90,14 @@ function drawPoints(points){
         ctx.lineTo(points[i].x, points[i].y);
     }
     ctx.closePath()
+    //ctx.closePath()
+    ctx.stroke()
+    test = averagePoint(points)
+    ctx.moveTo(test.x, test.y)
+    ctx.lineTo(GlobalPoint.x, GlobalPoint.y)
+    ctx.stroke()
+    ctx.moveTo(test.x, test.y)
+    ctx.lineTo(optional.x, optional.y)
     ctx.stroke()
 }
 
@@ -115,8 +160,7 @@ canvas.addEventListener("mousedown", function (e) {
             GlobalPoint.y = y
             break
         case 2:
-            GlobalPoint.x = x
-            GlobalPoint.y = y
+            scaleMatrix(polygon_points, mult_amount_x, mult_amount_y, x, y)
             break
         case 3:
             GlobalPoint.x = x
@@ -150,12 +194,14 @@ canvas.addEventListener("mousemove", function (e) {
                 }
                 break
             case 2:
-                for (i = 0; i < polygon_points.length; i++){
-                    multiplier = Math.sqrt(Math.pow(GlobalPoint.x - x, 2) + Math.pow(GlobalPoint.y - y, 2))
-                    console.log(multiplier)
-                    polygon_points[i] *= multiplier
-                }
-        }    }
+                scaleMatrix(points, mult_amount_x, mult_amount_y, x, y)
+                break
+            case 3:
+                distance_between = Math.sqrt(Math.pow(x - GlobalPoint.x, 2) + Math.pow(y - GlobalPoint.y, 2))
+                rotateMatrix(polygon_points, distance_between, x, y)
+
+        }
+    }
     else {
         if (find(x, y) >= 0){
             document.getElementById("myCanvas").style.cursor = "pointer";
@@ -165,7 +211,7 @@ canvas.addEventListener("mousemove", function (e) {
         }
     }
     if (polygon_points.length > 0)
-        drawPoints(polygon_points)
+        drawPoints(polygon_points, {x: x, y: y})
 }, false);
 
 
