@@ -1,6 +1,8 @@
-import itertools
+from itertools import combinations
 from math import radians, sin, cos, asin, sqrt
 import csv
+import numpy as np
+import random
 
 with open("worldcities.csv", encoding="utf-8", newline="") as f:
     reader = csv.reader(f)
@@ -31,10 +33,10 @@ def haversine(lon1, lat1, lon2, lat2):
 
 
 class Node:
-    newid = itertools.count()
+    # newid = itertools.count()
 
     def __init__(self, city, lat, frequency):
-        self.id = next(Node.newid)
+        # self.id = next(Node.newid)
         self.left = None
         self.right = None
         self.city = city
@@ -53,8 +55,11 @@ def generateGraph(cities):
     for i in range(len(cities)):
         vertex = []
         for j in range(len(cities)):
-            if i != j:
-                vertex.append(haversine(float(cities[i][2]), float(cities[i][3]), float(cities[j][2]), float(cities[j][3])))
+            if i == j:
+                vertex.append(0)
+            else:
+                vertex.append(
+                    haversine(float(cities[i][2]), float(cities[i][3]), float(cities[j][2]), float(cities[j][3])))
 
         travel_graph.append(vertex)
 
@@ -86,8 +91,22 @@ def generateGraph(cities):
 """
 
 """
+    GENERATE MESSAGE
+"""
+
+Norwegian_letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t",
+                     "u", "v", "w", "x", "y", "z", "æ", "ø", "å", " "]
+
+message = input("Input message to be encoded")
+
+"""
     FIXED LENGTH ENCODING
 """
+
+unique_chars = list(set(message))
+
+for each in unique_chars:
+    print(each)
 
 """
     VARIABLE SIZE ENCODING
@@ -98,7 +117,59 @@ def generateGraph(cities):
 """
 
 """
+
+    JOB GENERATOR
+    
+"""
+
+jobs = []
+id = 1
+for i in range(50):
+    curr_deadline = random.randint(0, 40)
+    curr_profit = random.randint(0, 40)
+    jobs.append((id, curr_deadline, curr_profit))
+    id += 1
+
+
+def sortbyProfit(tup):
+    return tup[2]
+
+
+def sortbyDeadline(tup):
+    return tup[1]
+
+
+jobs.sort(key=sortbyProfit, reverse=True)
+
+"""
+    JOB SOLVER 
+"""
+
+
+def jobscheduler(arr):
+    optimal_sequence = []
+    optimal_sequence.append(arr.pop(0))
+    for i in range(len(arr)):
+        if arr[i][1] not in [x[1] for x in optimal_sequence]:
+            optimal_sequence.append(arr[i])
+
+    return optimal_sequence
+
+
+optimal_sequence = jobscheduler(jobs)
+optimal_sequence.sort(key=sortbyDeadline)
+for each in optimal_sequence:
+    print(each)
+"""
     PROBLEM 5 KNAPSACK
+"""
+
+"""
+    FRACTIONAL KNAPSACK
+"""
+
+"""
+    BINARY KNAPSACK
 """
 
 if __name__ == '__main__':
@@ -106,9 +177,3 @@ if __name__ == '__main__':
     # for each in travel_data:
     #     print(each)
     travel_graph = generateGraph(travel_data)
-    for each in travel_graph:
-        print(each)
-
-    print(len(travel_data))
-    print(len(travel_graph))
-    print(len(travel_graph[0]))
