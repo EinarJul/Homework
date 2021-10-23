@@ -97,16 +97,13 @@ def generateGraph(cities):
 Norwegian_letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t",
                      "u", "v", "w", "x", "y", "z", "æ", "ø", "å", " "]
 
-message = input("Input message to be encoded")
+# message = input("Input message to be encoded")
 
 """
     FIXED LENGTH ENCODING
 """
 
-unique_chars = list(set(message))
-
-for each in unique_chars:
-    print(each)
+# unique_chars = list(set(message))
 
 """
     VARIABLE SIZE ENCODING
@@ -131,15 +128,15 @@ for i in range(50):
     id += 1
 
 
-def sortbyProfit(tup):
+def job_sortbyProfit(tup):
     return tup[2]
 
 
-def sortbyDeadline(tup):
+def job_sortbyDeadline(tup):
     return tup[1]
 
 
-jobs.sort(key=sortbyProfit, reverse=True)
+jobs.sort(key=job_sortbyProfit, reverse=True)
 
 """
     JOB SOLVER 
@@ -157,20 +154,132 @@ def jobscheduler(arr):
 
 
 optimal_sequence = jobscheduler(jobs)
-optimal_sequence.sort(key=sortbyDeadline)
-for each in optimal_sequence:
-    print(each)
+optimal_sequence.sort(key=job_sortbyDeadline)
+# for each in optimal_sequence:
+#     print(each)
 """
     PROBLEM 5 KNAPSACK
 """
 
 """
+    INITIAL SCRIPTS
+"""
+
+
+class item:
+    # newid = itertools.count()
+
+    def __init__(self, weight, value):
+        # self.id = next(Node.newid)
+        self.weight = weight
+        self.value = value
+
+
+items_profit = open("p08_p.txt", "r").read().split("\n")
+items_weight = open("p08_w.txt", "r").read().split("\n")
+knapsack_capacity = open("p08_c.txt", "r").read()
+knapsack_capacity = int("".join(knapsack_capacity))
+items_profit = [int(x) for x in items_profit if x]
+items_weight = [int(x) for x in items_weight if x]
+print(len(items_profit))
+print(len(items_weight))
+print(knapsack_capacity)
+
+
+def knapsack_sortbyProfit(items):
+    return items[2]
+
+
+items = []
+for i in range(len(items_profit)):
+    items.append((items_weight[i], items_profit[i], round(items_profit[i] / items_weight[i], 4)))
+
+items.sort(key=knapsack_sortbyProfit, reverse=True)
+
+"""
     FRACTIONAL KNAPSACK
 """
+
+
+def fractional_knapsack(items, W):
+    weight = 0
+    knapsack = [0] * len(items)
+    # items[i][0] is weight, items[i][1] is profit, items[i][2] is the cost ratio
+    for i in range(len(items)):
+        if weight + items[i][0] <= W:
+            knapsack[i] = 1
+            weight = weight + items[i][0]
+        else:
+            knapsack[i] = (W - weight) / items[i][0]
+            weight = W
+            break
+
+    products = []
+    product_list = []
+    for i in range(len(knapsack)):
+        if (knapsack[i] > 0):
+            product_list.append(items[i])
+        product = knapsack[i] * items[i][1]
+        products.append(product)
+    for each in product_list:
+        print(each)
+    print("Products of the knapsack: {}".format(products))
+    print("sum of products: {}".format(sum(products)))
+    return knapsack
+
+
+fractional_solved = fractional_knapsack(items, knapsack_capacity)
+# print(fractional_solved)
+# total_sum = 0
+# total_weight = 0
+#
+# for i in range(len(fractional_solved)):
+#     total_sum += fractional_solved[i] * items[i][1]
+#     total_weight += fractional_solved[i] * items[i][0]
+#
+# print(total_weight)
+# print(total_sum)
 
 """
     BINARY KNAPSACK
 """
+
+
+# n is the amount of elements
+# c is the knapsack capacity
+def initializeC(items, W):
+    n = len(items)
+    cArr = []
+    for i in range(n):
+        temp = []
+        for j in range(W):
+            temp.append(None)
+        cArr.append(temp)
+    return cArr
+
+
+
+def binaryKnapsack(items, n, W, arr):
+    if arr[n-1][W-1] != None:
+        return arr[n-1][W-1]
+    if n == 0 or W == 0:
+        result = 0
+    elif items[n][0] > W:
+        result = binaryKnapsack(items, n - 1, W, arr)
+    else:
+        tmp_1 = binaryKnapsack(items, n - 1, W, arr)
+        tmp_2 = binaryKnapsack(items, n - 1, W - items[n][1], arr)
+        result = max(tmp_1, tmp_2)
+
+    arr[n-1][W-1] = result
+    print(arr[n-1][W-1])
+    return result
+
+test_arr = initializeC(items, knapsack_capacity)
+print(len(test_arr), len(test_arr[0]))
+print(len(items), knapsack_capacity)
+yep = binaryKnapsack(items, len(items)-1, knapsack_capacity, test_arr)
+print(yep)
 
 if __name__ == '__main__':
     travel_data = getNorwegianCities(data)
