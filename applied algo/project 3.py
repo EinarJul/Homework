@@ -228,10 +228,10 @@ def binarySearch(arr, item):
                 return binarySearch(arr[midpoint + 1:], item)
 
 
-# target_city = input("What city are you trying to find? ")
-# target_location = float(input("Give its precise lat: "))
-# search_result = binarySearch(quicksort_result, [target_location, target_city])
-# print(search_result)
+target_city = input("What city are you trying to find? ")
+target_location = float(input("Give its precise lat: "))
+search_result = binarySearch(quicksort_result, [target_location, target_city])
+print(search_result)
 
 """
 BELOW IS EVERYTHING NEEDED FOR THE OPTIMAL BINARY SEARCH ALGORITHM FOR PROJECT 3
