@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>
+        Three.js
+    </title>
+    <script type="text/javascript" src="stats.js"></script>
+    <script type="text/javascript" src="dat.gui.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+<div id="stats-output"></div>
+<div id="WebGL-output"></div>
+
+<script type="module" >
+
+
+    import * as THREE from "./three.module.js";
+    import {OrbitControls} from "./OrbitControls.js";
+
+    function init(){
+
+        var cam_controls;
+        var stats = initStats()
+
+        var winW = window.innerWidth;
+        var winH = window.innerHeight;
+
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(50, winW / winH, 0.01, 1000);
+
+        var renderer = new THREE.WebGLRenderer({antialias: true});
+        renderer.setSize(winW, winH);
+        document.body.appendChild(renderer.domElement);
+        var radius = 4;
+        var height = 5;
+
+        var geometry = new THREE.CylinderGeometry(0, radius, height, 4, 1)
+        var material = new THREE.MeshNormalMaterial();
+        var pyramid = new THREE.Mesh(geometry, material);
+        scene.add(pyramid);
+
+
+        camera.position.z = 10;
+
+        cam_controls = new OrbitControls(camera, renderer.domElement)
+        cam_controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+        cam_controls.dampingFactor = 0.05;
+
+        cam_controls.screenSpacePanning = false;
+        var controls = new function(){
+            this.rotationx = 0.01;
+            this.rotationy = 0.01;
+            this.rotationz = 0.01;
+        }
+        var gui = new dat.GUI();
+        gui.add(controls, "rotationx", 0, 0.2)
+        gui.add(controls, "rotationy", 0, 0.2)
+        gui.add(controls, "rotationz", 0, 0.2)
+
+
+        var render = function () {
+            stats.update()
+            requestAnimationFrame(render);
+            pyramid.rotation.x += controls.rotationx;
+            pyramid.rotation.y += controls.rotationy;
+            pyramid.rotation.z += controls.rotationz;
+
+            renderer.render(scene, camera);
+
+        };
+
+        render()
+
+        function initStats(){
+            var stats = new Stats();
+            stats.setMode(0)
+
+            stats.domElement.style.position = "absolute";
+            stats.domElement.style.left = "0px"
+            stats.domElement.style.top = "0px"
+
+            document.getElementById("stats-output").appendChild(stats.domElement)
+
+            return stats;
+        }
+    }
+
+    window.onload = init;
+
+
+</script>
+</body>
+</html>
