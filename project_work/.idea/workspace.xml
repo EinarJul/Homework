@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="ffae62a7-e841-4c00-812b-2d88c9ae357f" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example.png" beforeDir="false" afterPath="$PROJECT_DIR$/example.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fotokred-frøydis-norsk-hestesenter-flip.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/horse.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolo/yolo-obj_final.weights" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov3 solution.py" beforeDir="false" afterPath="$PROJECT_DIR$/yolov3 solution.py" afterDir="false" />
-    </list>
+    <list default="true" id="ffae62a7-e841-4c00-812b-2d88c9ae357f" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -46,7 +40,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/yolov3 solution.py" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../gitlab pulls/ikt213-machine-vision" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
@@ -173,6 +167,7 @@
       <workItem from="1636335209637" duration="28000" />
       <workItem from="1636400285729" duration="5364000" />
       <workItem from="1636415340337" duration="468000" />
+      <workItem from="1636453972714" duration="63000" />
     </task>
     <servers />
   </component>
