@@ -3,11 +3,11 @@ import time
 import cv2
 
 
-INPUT_FILE= 'thinking-2681494_960_720.webp'
+INPUT_FILE= 'fist_2.jpg'
 OUTPUT_FILE='predicted.jpg'
-LABELS_FILE='yolo/obj.names'
-CONFIG_FILE='yolo/yolo-obj.cfg'
-WEIGHTS_FILE='yolo/yolo-obj_final.weights'
+LABELS_FILE='yolo_256/obj.names'
+CONFIG_FILE='yolo_256/yolo-obj.cfg'
+WEIGHTS_FILE='yolo_256/yolo-obj_final.weights'
 CONFIDENCE_THRESHOLD=0.3
 
 LABELS = open(LABELS_FILE).read().strip().split("\n")
@@ -96,4 +96,4 @@ if len(idxs) > 0:
 			0.5, color, 2)
 
 # show the output image
-cv2.imwrite(INPUT_FILE + "_predictions.png", image)
+cv2.imwrite(INPUT_FILE + "_predictions256.png", image)

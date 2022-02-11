@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="ec080ec3-3fa7-4245-90f5-c0bc7de7e6ed" name="Changes" comment="" />
+    <list default="true" id="ec080ec3-3fa7-4245-90f5-c0bc7de7e6ed" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../applied algo/project 5/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../applied algo/project 5/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../project_work/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../project_work/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -27,7 +31,9 @@
     </file-type-list>
   </component>
   <component name="ProjectId" id="20JVgVbXiNLY0EpbT6Z3ri2JHnY" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -37,6 +43,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../laboppgave 10" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
@@ -63,6 +70,7 @@
       <workItem from="1635774309050" duration="160000" />
       <workItem from="1635774492810" duration="9000" />
       <workItem from="1635776450752" duration="53000" />
+      <workItem from="1636481197755" duration="823000" />
     </task>
     <servers />
   </component>

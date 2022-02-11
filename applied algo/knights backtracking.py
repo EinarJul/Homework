@@ -41,6 +41,7 @@ def potential_moves(board, row, col):
         # otherwise we discard it
         res = tuple(map(lambda i, j: i-j, (row, col), knight_move[i]))
         if (not any(map(lambda ele: ele<0 or ele > N-1, res))):
+            # 0 is the unvisited marking, so we check the single result from res for if the boards position is unvisited
             if (board[res[0]][res[1]] == 0):
                 potential.append(res)
     return potential
