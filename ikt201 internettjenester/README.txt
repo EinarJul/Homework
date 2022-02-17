@@ -1,0 +1,2 @@
+Internet services project i participated in. My part of the project was to develop the frontend and backend for profiles,
+the full course was in .net core mvc but as part of a risk our team decided to try our hands in a MERN stack implementation.

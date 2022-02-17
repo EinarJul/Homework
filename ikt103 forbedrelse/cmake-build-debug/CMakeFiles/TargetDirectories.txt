@@ -1,3 +1,0 @@
-E:/Homework/ikt103 forbedrelse/cmake-build-debug/CMakeFiles/ikt103_forbedrelse.dir
-E:/Homework/ikt103 forbedrelse/cmake-build-debug/CMakeFiles/edit_cache.dir
-E:/Homework/ikt103 forbedrelse/cmake-build-debug/CMakeFiles/rebuild_cache.dir

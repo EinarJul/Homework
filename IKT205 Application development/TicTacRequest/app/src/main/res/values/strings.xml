@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">TicTacRequest</string>
+    <string name="game_service_key">VRAkqMFGKS</string>
+    <string name="protocol">https://</string>
+    <string name="domain">generic-game-service.herokuapp.com</string>
+    <string name="join_game_path">/%1s/join</string>
+    <string name="pool_game_path">/%1s/poll</string>
+    <string name="update_game_path">/%1s/update</string>
+
+    <string name="base_path">/Game</string>
+    <string name="create_game">create game</string>
+    <string name="join_game">join game</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="player_name">player name</string>
+    <string name="title_activity_game">GameActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="input_game_id">Input game id</string>
+    <string name="waiting_for_player">Waiting for player</string>
+    <string name="base_state">0</string>
+    <string name="first_move">Make the first move to start the game</string>
+    <string name="waiting_for">Waiting for opponent..</string>
+    <string name="your_turn">Your turn!</string>
+</resources>
